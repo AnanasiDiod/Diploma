@@ -8,7 +8,7 @@ from threading import Thread
 
 
    
-def main(dl):
+def main(dl, alpha = 0):
     lamps_3 = [(0.105 + dl, 0, new.lamp_radius, new.P),
                (- (0.105 + dl) * m.sin(m.pi / 6), (0.105 + dl) * m.cos(m.pi / 6), new.lamp_radius, new.P),
                (- (0.105 + dl) * m.sin(m.pi / 6), - (0.105 + dl) * m.cos(m.pi / 6), new.lamp_radius, new.P)]
@@ -34,7 +34,14 @@ def main(dl):
                (0.05, - (0.105 + dl), new.lamp_radius, new.P),
                (-0.05, - (0.105 + dl), new.lamp_radius, new.P)]
     
-    lamps = lamps_6
+    lamps_6_custom = [(0.1 + dl + 0.05 * m.cos(alpha), 0.05 * m.sin(alpha), new.lamp_radius, new.P),
+                      (0.1 + dl - 0.05 * m.cos(alpha), - 0.05 * m.sin(alpha), new.lamp_radius, new.P),
+                      ( -(0.1 + dl) * m.sin(m.pi / 6) - 0.05 * m.cos(m.pi / 3 - alpha), (0.1 + dl) * m.cos(m.pi / 6) + 0.05 * m.sin(m.pi / 3 - alpha), new.lamp_radius, new.P),
+                      ( -(0.1 + dl) * m.sin(m.pi / 6) + 0.05 * m.cos(m.pi / 3 - alpha), (0.1 + dl) * m.cos(m.pi / 6) - 0.05 * m.sin(m.pi / 3 - alpha), new.lamp_radius, new.P),
+                      ( -(0.1 + dl) * m.sin(m.pi / 6) - 0.05 * m.cos(m.pi / 3 + alpha), - (0.1 + dl) * m.cos(m.pi / 6) - 0.05 * m.sin(m.pi / 3 + alpha), new.lamp_radius, new.P),
+                      ( -(0.1 + dl) * m.sin(m.pi / 6) + 0.05 * m.cos(m.pi / 3 + alpha), - (0.1 + dl) * m.cos(m.pi / 6) + 0.05 * m.sin(m.pi / 3 + alpha), new.lamp_radius, new.P)]
+    
+    lamps = lamps_6_custom
 
     field = [[],[],[],[],[]]
 
@@ -42,7 +49,9 @@ def main(dl):
               (0.195,- 0.195, 0.0125, 0),
               (- 0.195,0.195, 0.0125, 0), 
               (- 0.195, - 0.195, 0.0125, 0),
-              (0, 0, 0.0125, 0)]
+               (0, 0, 0.0125, 0)]
+    
+    # print(lamps)
     counter = 0
     #расчёт поля без учёта затенений
     rough = new.r_min
@@ -50,7 +59,7 @@ def main(dl):
     while rough <= new.r_max:
         phi = 0
         # rough_list[0].append(rough)
-        d_phi = 2 * m.pi / 570
+        d_phi = 2 * m.pi / 572
         # rough_list[1].append(rough)
         while phi < 2 * m.pi:
             # rough_list[2].append(rough)
@@ -81,64 +90,22 @@ def main(dl):
             field[4].append(rough)
             phi += d_phi   
         rough += new.dr
-        # print(rough)
-                    
-
-    # path = 'D:/Рабочий стол/git projects/test/3/' + name + '.txt'
-    # np.savetxt(path, np.transpose(np.matrix(field[2:4])))
-    
-
-    # x = np.array(field[0])
-    # y = np.array(field[1])
-    # z = np.array(field[2])
-    # # построение точек
-
-    # fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    # ax.scatter(x, y, z)
-    # ax.set_zlim(0,np.max(z))
-    # plt.show()
 
     return field[2]
-    # print(rough_list)
-
-
-    
-# def from_file(name):
-    # R_view = 3
-    # field = np.loadtxt(name)
-    # check = list()
-    # nan = field[int(N/2)][int(N/2)]
-    # for i in range(N):
-    #     for j in range(int(N)):
-    #         if abs(m.sqrt((i - N/2) ** 2 + (j - N/2) ** 2) - R_view/dr) < 0.2:
-    #             if j - N/2 >= 0:
-    #                 check.append([m.acos((i - N / 2)/m.sqrt((i - N / 2)**2 + (j - N / 2)**2)), field[i][j]])
-    #             else:
-    #                 check.append([m.pi + m.acos((i - N / 2)/m.sqrt((i - N / 2)**2 + (j - N / 2)**2)), field[i][j]])
-                
-    # fig = plt.figure()
-    # x = np.linspace(0,r,N)
-    # xgrid, ygrid = np.meshgrid(x, x)
-    # ax = fig.add_subplot(projection='3d')
-    # ax.plot_surface(xgrid, ygrid, field, rstride=2, cstride = 2, cmap='seismic')
-    # plt.show()
-    # np.savetxt(name+ '.txt', np.array(check))
-
-# for i in range(5):
-#     main(-i/100, str(-i))
-#     print(-i)
-
-# for i in range(5):
-#     from_file('C:/Users/naumenko/Documents/code/quad + ' + str(-i))
-#     print(-i)
-
 data = []
-j = 0
-for i in (-4, -2, 0, 2, 4, 6, 8):
-    data.append(main(i / 100))
-    print((i), ' done')
-    j += 1
 
-# print(data)
-path = 'D:/Рабочий стол/git projects/test/6_lamps.txt'
-np.savetxt(path, np.transpose(np.matrix(data)))
+for i in (0, m.pi / 6, m.pi / 4, m.pi / 3, m.pi / 2):
+    data.append(main(0, i))
+    print((i), ' done')
+
+# Устреднение
+
+data_meaned = []
+for i in data:
+    temp = []
+    for j in range(int(len(i)/2)):
+        temp.append((i[j * 2] + i[j * 2 + 1])/2)
+    data_meaned.append(temp)
+
+path = 'D:/Рабочий стол/git projects/test/6_lamps_different_angles.txt'
+np.savetxt(path, np.transpose(np.matrix(data_meaned)*0.1))
